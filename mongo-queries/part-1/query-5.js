@@ -1,20 +1,7 @@
 // 5. What are _id and borough of “Seafood” (cuisine) restaurants which received at least one “B” grade
 // in period from 2014-02-01 to 2014-03-01? Use projection to include only _id and borough.
 
-var query = db.restaurants.find(
-    {
-        "cuisine": "Seafood",
-        "grades.grade": "B",
-        "grades.date": {
-            $gte: new ISODate("2014-02-01T00:00:00.000Z"),
-            $lte: new ISODate("2014-03-01T00:00:00.000Z")
-        }
-    },
-    {
-        _id: 1,
-        borough: 1
-    }
-);
+var query = db.restaurants.find({"cuisine": "Seafood","grades.grade": "B","grades.date": {$gt: new ISODate("2014-02-01"),$lt: new ISODate("2014-03-01")}},{borough: 1});
 
 
 execute(query);

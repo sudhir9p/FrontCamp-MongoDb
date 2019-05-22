@@ -3,21 +3,13 @@
 //4. What are the names of the restaurants which have a grade at index 8 with score less then 7? Use projection to include only names without _id.
 
 
-var createIndex = db.restaurants
-    .createIndex(
-        { 'grades.7.score': 1 },
-        {
-            partialFilterExpression: {
-                'grades.7.score': { $lt: 7 }
-            }
-        }
-    );
+var createIndex = db.restaurants.createIndex({ name: 1, 'grades.8.score': 1 }, { partialFilterExpression: { 'grades.7.score': { $lt: 7 } } });
 
 
 
 
 /**
- * 
+ *
  * {
         "createdCollectionAutomatically" : false,
         "numIndexesBefore" : 3,
@@ -30,7 +22,7 @@ var createIndex = db.restaurants
 
 
 /**
- * 
+ *
  *  db.restaurants.find({"grades.7.score": {$lt : 7} },{"restaurant_id" : 1,"name":1,"address":1,"grades":1}).explain()
 {
         "queryPlanner" : {
