@@ -2,7 +2,14 @@
 // but provide the last 7 carriers (do not include the first 3). Show result as { "_id" : "<carrier>", "total" : 999}
 
 
-var query = db.airlines.aggregate(
+var query = db.airlines.aggregate([{ $match: { originCountry: { $eq: "United States" }, destCountry: { $in: ["Greece", "Italy", "Spain"] } } }, { $group: { _id: { carrier: "$carrier" }, totalPassengers: { $sum: "$passengers" } } }, { $project: { _id: 0, carrier: "$_id.carrier", total: "$totalPassengers" } }, { $sort: { total: -1 } }, { $limit: 10 }, { $skip: 3 }]);
+
+execute(query);
+
+
+
+/*
+db.airlines.aggregate(
     [
         {
             $match: {
@@ -39,8 +46,7 @@ var query = db.airlines.aggregate(
     ]
 );
 
-execute(query);
-
+*/
 
 /**
 { "carrier" : "Compagnia Aerea Italiana", "total" : 280256 }

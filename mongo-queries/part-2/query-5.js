@@ -3,7 +3,14 @@
 // Show result as { "totalPassengers" : 999, "location" : { "state" : "abc", "city" : "xyz" } }
 
 
-var query = db.airlines.aggregate(
+var query = db.airlines.aggregate([{ $match: { 'originCountry': { $eq: 'United States' } } }, { $group: { '_id': { 'originCity': '$originCity', 'originState': '$originState' }, 'cityPassengers': { $sum: '$passengers' } } }, { $group: { '_id': '$_id.originState', 'location': { $mergeObjects: '$_id' }, 'totalPassengers': { $max: '$cityPassengers' } } }, { $sort: { 'location.state': 1 } }, { $project: { _id: 0, totalPassengers: 1, 'location': 1 } }, { $limit: 5 }]);
+
+execute(query);
+
+
+/*
+
+db.airlines.aggregate(
     [
         {
             $match: {
@@ -44,8 +51,7 @@ var query = db.airlines.aggregate(
     ]
 );
 
-execute(query);
-
+*/
 
 /**
 { "location" : { "originCity" : "Roanoke, VA", "originState" : "Virginia" }, "totalPassengers" : 12946230 }
