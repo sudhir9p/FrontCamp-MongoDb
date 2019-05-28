@@ -3,13 +3,12 @@
 // Show result as { "totalPassengers" : 999, "location" : { "state" : "abc", "city" : "xyz" } }
 
 
-db.airlines.aggregate([{ $match: { 'originCountry': { $eq: 'United States' } } }, { $group: { '_id': { 'originCity': '$originCity', 'originState': '$originState' }, 'cityPassengers': { $sum: '$passengers' } } }, { $group: { '_id': '$_id.originState', 'location': { $mergeObjects: '$_id' }, 'totalPassengers': { $max: '$cityPassengers' } } }, { $sort: { 'location.state': 1 } }, { $project: { _id: 0, totalPassengers: 1, 'location': 1 } }, { $limit: 5 }]);
+db.airlines.aggregate([{ $match: { 'originCountry': { $eq: 'United States' } } }, { $group: { '_id': { 'originCity': '$originCity', 'originState': '$originState' }, 'cityPassengers': { $sum: '$passengers' } } }, { $sort: { '_id.originState': 1, 'cityPassengers': -1 } }, { $group: { '_id': '$_id.originState', 'city': { $first: '$_id.originCity' }, 'totalPassengers': { $first: "$cityPassengers" } } }, { $sort: { '_id': 1 } }, { $limit: 5 }, { $project: { _id: 0, totalPassengers: 1, 'location': { 'state': '$_id', 'city': '$city' } } }]);
 
 
 
 
 /*
-
 db.airlines.aggregate(
     [
         {
@@ -27,31 +26,50 @@ db.airlines.aggregate(
             }
         },
         {
+            $sort: {
+                '_id.originState': 1,
+                'cityPassengers': -1
+            }
+        },
+        {
             $group: {
                 '_id': '$_id.originState',
-                'location': { $mergeObjects: '$_id' },
-                'totalPassengers': { $max: '$cityPassengers' }
+                'city': { $first: '$_id.originCity' },
+                'totalPassengers': { $first: "$cityPassengers" }
             }
         },
         {
             $sort: {
-                'location.state': 1
+                '_id': 1
             }
+        },
+        {
+            $limit: 5
         },
         {
             $project: {
                 _id: 0,
                 totalPassengers: 1,
-                'location': 1
+                'location': { 'state': '$_id', 'city': '$city' }
             }
-        },
-        {
-            $limit: 5
         }
     ]
 );
 
 */
+
+
+
+/**NEW OUTPUT
+ 
+{ "totalPassengers" : 760120, "location" : { "state" : "Alabama", "city" : "Birmingham, AL" } }
+{ "totalPassengers" : 1472404, "location" : { "state" : "Alaska", "city" : "Anchorage, AK" } }
+{ "totalPassengers" : 13152753, "location" : { "state" : "Arizona", "city" : "Phoenix, AZ" } }
+{ "totalPassengers" : 571452, "location" : { "state" : "Arkansas", "city" : "Little Rock, AR" } }
+{ "totalPassengers" : 23701556, "location" : { "state" : "California", "city" : "Los Angeles, CA" } }
+
+
+ */
 
 /**
 { "location" : { "originCity" : "Roanoke, VA", "originState" : "Virginia" }, "totalPassengers" : 12946230 }
